@@ -1,13 +1,20 @@
 # ⚓ Autonomous Marine Power Management System (PMS)
 ### Intelligent Load-Shedding & Blackout Recovery
 
+## 🚀 Live Project
+
+### 🖥️ Interactive HMI
+
+🚢 **[Launch the Interactive PMS HMI](https://hangmanlucky.github.io/marine-egcs-scrubber-control/)**
+
+
 ![Platform](https://img.shields.io/badge/PLC-Siemens%20S7--1500%20%2F%20CODESYS-blue)
 ![Language](https://img.shields.io/badge/Language-IEC%2061131--3%20Structured%20Text-informational)
 ![Domain](https://img.shields.io/badge/Domain-Marine%20%2F%20SOLAS%20Ch.II--1-blueviolet)
 ![Status](https://img.shields.io/badge/Status-Simulation%20%2F%20Portfolio%20Build-orange)
 
 **Author:** Sipho Lucky Sibanda
-**Series:** Marine Automation Portfolio — Project 03 (see also [Project 01 — EGCS]((https://hangmanlucky.github.io/marine-egcs-scrubber-control/) and [Project 02 — FGSS ESD](https://hangmanlucky.github.io/marine-lng-fgss-esd/)
+**Series:** Marine Automation Portfolio — Project 03 (see also [Project 01 — EGCS](https://hangmanlucky.github.io/marine-egcs-scrubber-control/) and [Project 02 — FGSS ESD](https://hangmanlucky.github.io/marine-lng-fgss-esd/)
 
 ---
 
