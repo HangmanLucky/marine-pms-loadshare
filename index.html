@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMS — Power Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A1220; --panel:#101B2E; --line:#213249;
+    --text-hi:#EEF3F9; --text-mid:#93A5BC; --text-dim:#556478;
+    --safe:#35D0A0; --warn:#F5A623; --trip:#EF4B4B; --blue:#4F8EF7; --blue-soft:#9CC2FA;
+    --mono:'IBM Plex Mono',monospace; --label:'Barlow Semi Condensed',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text-hi);font-family:var(--label);}
+  body{min-height:100vh;padding:18px;
+    background:radial-gradient(1100px 550px at 15% -10%, rgba(79,142,247,0.08), transparent 60%), var(--bg);}
+  .console{max-width:1240px;margin:0 auto;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel);box-shadow:0 30px 80px rgba(0,0,0,0.55);}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:#0C1626;border-bottom:1px solid var(--line);}
+  .vessel{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--blue-soft);text-transform:uppercase;}
+  h1{font-size:17px;margin:2px 0 2px;letter-spacing:.04em;font-weight:700;text-transform:uppercase;}
+  .sub{font-size:11px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;}
+  .clock{font-family:var(--mono);font-size:13px;color:var(--text-mid);text-align:right;}
+  .clock span{display:block;color:var(--text-dim);font-size:10px;letter-spacing:.12em;text-transform:uppercase;}
+
+  .statusrow{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);}
+  .pill{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.05em;padding:9px 16px;border-radius:3px;border:1px solid;}
+  .pill.ok{color:var(--safe);border-color:rgba(53,208,160,.4);background:rgba(53,208,160,.08);}
+  .pill.busy{color:var(--blue);border-color:rgba(79,142,247,.4);background:rgba(79,142,247,.1);}
+  .pill.warn{color:var(--warn);border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.1);}
+  .pill.trip{color:var(--trip);border-color:rgba(239,75,75,.5);background:rgba(239,75,75,.12);}
+  .metabox{font-family:var(--mono);font-size:11px;color:var(--text-mid);}
+  .metabox b{color:var(--text-hi);}
+  .metaitem{display:inline-block;margin-left:24px;}
+
+  .sld{padding:22px;border-bottom:1px solid var(--line);}
+  .celltitle{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin:0 0 12px;font-weight:600;}
+
+  .grid{display:flex;border-top:1px solid var(--line);}
+  .cell{background:var(--panel);padding:18px 20px;flex:1;border-right:1px solid var(--line);}
+  .cell:last-child{border-right:none;}
+
+  .syncdial{width:150px;height:150px;margin:0 auto;}
+  .biasbars{display:flex;justify-content:center;margin-top:10px;}
+  .biasbar-wrap{width:80px;text-align:center;}
+  .biasbar-wrap div.lbl{font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:4px;}
+  .biasouter{height:8px;border:1px solid var(--line);border-radius:2px;background:#0C1626;position:relative;overflow:hidden;}
+  .biasfill{position:absolute;top:0;bottom:0;background:var(--blue);}
+
+  .barchart{display:flex;align-items:flex-end;height:130px;justify-content:center;margin-top:8px;}
+  .barcol{width:44px;text-align:center;margin-right:0px;}
+  .barcol .barouter{height:100px;display:flex;align-items:flex-end;border-bottom:1px solid var(--line);}
+  .barfill{width:26px;margin:0 auto;background:var(--blue);transition:height .5s ease;}
+  .barlbl{font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:6px;}
+  .barval{font-family:var(--mono);font-size:10px;color:var(--text-hi);}
+
+  .shedlamp{display:flex;align-items:center;font-family:var(--mono);font-size:10.5px;padding:7px 0;border-bottom:1px solid var(--line);}
+  .shedlamp:last-child{border-bottom:none;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);margin-right:10px;flex:none;}
+  .dot.shed{background:var(--trip);}
+  .dot.ok{background:var(--safe);}
+
+  .log{display:flex;flex-direction:column;max-height:190px;overflow-y:auto;margin-top:10px;}
+  .log-row{display:flex;padding:6px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10px;}
+  .log-row:last-child{border-bottom:none;}
+  .log-time{color:var(--text-dim);flex:none;width:56px;}
+  .log-tag{flex:none;width:7px;height:7px;border-radius:50%;margin:3px 8px 0 0;}
+  .log-tag.ok{background:var(--safe);} .log-tag.trip{background:var(--trip);} .log-tag.warn{background:var(--warn);} .log-tag.info{background:var(--blue);}
+  .log-msg{color:var(--text-mid);}
+  ::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+
+  .footer{padding:12px 22px;font-family:var(--mono);font-size:10px;color:var(--text-dim);border-top:1px solid var(--line);display:flex;justify-content:space-between;}
+</style>
+</head>
+<body>
+<div class="console">
+  <div class="topbar">
+    <div>
+      <div class="vessel">MV Example Vessel &nbsp;&middot;&nbsp; 2 x 2000kW DIESEL-ELECTRIC</div>
+      <h1>Power Management System</h1>
+      <div class="sub">Intelligent Load-Shedding &amp; Blackout Recovery</div>
+    </div>
+    <div class="clock"><span>UTC Ship Time</span><span id="clockval">--:--:--</span></div>
+  </div>
+
+  <div class="statusrow">
+    <div class="pill ok" id="statusPill">NORMAL - GEN1 DUTY</div>
+    <div class="metabox">
+      <span class="metaitem">TOTAL LOAD <b id="totalLoad">1120</b> kW</span>
+      <span class="metaitem">CAPACITY <b id="capacity">2000</b> kW</span>
+      <span class="metaitem">RUNNING GENS <b id="runningGens">1</b></span>
+    </div>
+  </div>
+
+  <div class="sld">
+    <p class="celltitle">Single-Line Diagram</p>
+    <svg viewBox="0 0 1100 210" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        text{font-family:'IBM Plex Mono',monospace;font-size:10.5px;fill:#93A5BC;}
+        .box{fill:#0C1626;stroke:#213249;stroke-width:1.4;}
+        .val{font-family:'IBM Plex Mono',monospace;font-size:11px;fill:#EEF3F9;font-weight:700;}
+      </style>
+      <!-- Gen1 -->
+      <circle cx="90" cy="100" r="42" class="box" id="gen1Circle" stroke="#35D0A0" stroke-width="2"/>
+      <text x="90" y="90" text-anchor="middle">GEN1</text>
+      <text x="90" y="105" text-anchor="middle" class="val" id="gen1kw">720 kW</text>
+      <text x="90" y="120" text-anchor="middle" id="gen1hz">60.0 Hz</text>
+
+      <line x1="132" y1="100" x2="185" y2="100" stroke="#556478" stroke-width="2"/>
+      <rect x="185" y="90" width="26" height="20" fill="#35D0A0" stroke="#0C1626" stroke-width="1" id="bkr1"/>
+      <text x="198" y="130" text-anchor="middle" font-size="9">BKR1</text>
+      <line x1="211" y1="100" x2="270" y2="100" stroke="#556478" stroke-width="2"/>
+
+      <!-- Bus -->
+      <line x1="270" y1="100" x2="830" y2="100" stroke="#4F8EF7" stroke-width="4" id="busLine"/>
+      <text x="550" y="60" text-anchor="middle" font-size="11" fill="#9CC2FA">MAIN BUSBAR</text>
+      <text x="550" y="78" text-anchor="middle" class="val" id="busVal">450V / 60.0Hz</text>
+
+      <!-- Gen2 -->
+      <line x1="830" y1="100" x2="889" y2="100" stroke="#556478" stroke-width="2"/>
+      <rect x="889" y="90" width="26" height="20" fill="#556478" stroke="#0C1626" stroke-width="1" id="bkr2"/>
+      <text x="902" y="130" text-anchor="middle" font-size="9">BKR2</text>
+      <line x1="915" y1="100" x2="968" y2="100" stroke="#556478" stroke-width="2"/>
+      <circle cx="1010" cy="100" r="42" class="box" id="gen2Circle" stroke="#556478" stroke-width="2"/>
+      <text x="1010" y="90" text-anchor="middle">GEN2</text>
+      <text x="1010" y="105" text-anchor="middle" class="val" id="gen2kw">OFF</text>
+      <text x="1010" y="120" text-anchor="middle" id="gen2hz">STANDBY</text>
+
+      <!-- Emergency gen -->
+      <line x1="450" y1="100" x2="450" y2="150" stroke="#556478" stroke-width="1.4" stroke-dasharray="3 3" id="emgLine"/>
+      <rect x="390" y="150" width="120" height="42" class="box" id="emgBox"/>
+      <text x="450" y="168" text-anchor="middle" font-size="10">EMERGENCY GEN</text>
+      <text x="450" y="184" text-anchor="middle" font-size="9" id="emgState">STANDBY</text>
+    </svg>
+  </div>
+
+  <div class="grid">
+    <div class="cell">
+      <p class="celltitle">Synchroscope</p>
+      <svg class="syncdial" viewBox="0 0 150 150">
+        <circle cx="75" cy="75" r="65" fill="#0C1626" stroke="#213249" stroke-width="2"/>
+        <line x1="75" y1="14" x2="75" y2="26" stroke="#35D0A0" stroke-width="2"/>
+        <text x="75" y="34" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#35D0A0">0&deg;</text>
+        <text x="132" y="79" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#556478">FAST</text>
+        <text x="18" y="79" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#556478">SLOW</text>
+        <line id="syncNeedle" x1="75" y1="75" x2="75" y2="20" stroke="#F5A623" stroke-width="2.5" transform="rotate(120 75 75)"/>
+        <circle cx="75" cy="75" r="4" fill="#F5A623"/>
+      </svg>
+      <div class="biasbars">
+        <div class="biasbar-wrap">
+          <div class="biasouter"><div class="biasfill" id="govBias" style="left:50%;width:0%;"></div></div>
+          <div class="lbl">GOVERNOR BIAS</div>
+        </div>
+      </div>
+      <div class="biasbars">
+        <div class="biasbar-wrap">
+          <div class="biasouter"><div class="biasfill" id="avrBias" style="left:50%;width:0%;"></div></div>
+          <div class="lbl">AVR BIAS</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <p class="celltitle">Load vs. Capacity</p>
+      <div class="barchart">
+        <div class="barcol"><div class="barouter"><div class="barfill" id="barGen1" style="height:36%;background:#35D0A0;"></div></div><div class="barval" id="barGen1val">720</div><div class="barlbl">GEN1</div></div>
+        <div class="barcol"><div class="barouter"><div class="barfill" id="barGen2" style="height:0%;background:#556478;"></div></div><div class="barval" id="barGen2val">0</div><div class="barlbl">GEN2</div></div>
+        <div class="barcol"><div class="barouter"><div class="barfill" id="barTotal" style="height:36%;background:#4F8EF7;"></div></div><div class="barval" id="barTotalval">720</div><div class="barlbl">TOTAL</div></div>
+        <div class="barcol"><div class="barouter"><div class="barfill" id="barCap" style="height:65%;background:#213249;"></div></div><div class="barval" id="barCapval">2000</div><div class="barlbl">CAPACITY</div></div>
+      </div>
+      <p class="celltitle" style="margin-top:18px;">Load Shed Stages</p>
+      <div class="shedlamp"><span class="dot" id="dotS1"></span>Stage 1 &mdash; Galley / Laundry</div>
+      <div class="shedlamp"><span class="dot" id="dotS2"></span>Stage 2 &mdash; Accommodation HVAC</div>
+      <div class="shedlamp"><span class="dot" id="dotS3"></span>Stage 3 &mdash; Non-Essential Deck Machinery</div>
+    </div>
+
+    <div class="cell">
+      <p class="celltitle">Alarm &amp; Event Log</p>
+      <div class="log" id="logList"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Simulated HMI &mdash; desktop validation build, not for shipboard deployment</span>
+    <span>PMS-POWER-MGMT v1.0 &middot; Author: Sipho Lucky Sibanda</span>
+  </div>
+</div>
+
+<script>
+  function tick(){ var d = new Date(); document.getElementById('clockval').textContent = d.toISOString().substr(11,8) + ' UTC'; }
+  tick(); setInterval(tick, 1000);
+
+  var state = {
+    gen1kw: 720, gen2kw: 0, cap: 2000, phase: 120, gov: 0, avr: 0,
+    busV: 450, busHz: 60.0, bkr1: true, bkr2: false,
+    stage: [false,false,false], mode: 'normal', emg: 'STANDBY'
+  };
+
+  var logList = document.getElementById('logList');
+  function pushLog(msg, level){
+    var row = document.createElement('div'); row.className = 'log-row';
+    var t = document.createElement('span'); t.className='log-time'; t.textContent = new Date().toISOString().substr(11,8);
+    var g = document.createElement('span'); g.className = 'log-tag ' + level;
+    var m = document.createElement('span'); m.className='log-msg'; m.textContent = msg;
+    row.appendChild(t); row.appendChild(g); row.appendChild(m);
+    if(logList.firstChild){ logList.insertBefore(row, logList.firstChild); } else { logList.appendChild(row); }
+    while(logList.children.length > 24){ logList.removeChild(logList.lastChild); }
+  }
+  pushLog('System enabled - Gen1 carrying duty load', 'ok');
+
+  function render(){
+    var total = state.gen1kw + state.gen2kw;
+    document.getElementById('totalLoad').textContent = Math.round(total);
+    document.getElementById('capacity').textContent = state.cap * (state.bkr2 ? 2 : 1);
+    document.getElementById('runningGens').textContent = (state.bkr1?1:0) + (state.bkr2?1:0);
+
+    document.getElementById('gen1kw').textContent = state.bkr1 ? (Math.round(state.gen1kw) + ' kW') : 'OFF';
+    document.getElementById('gen1hz').textContent = state.bkr1 ? (state.busHz.toFixed(1) + ' Hz') : 'STOPPED';
+    document.getElementById('gen2kw').textContent = state.bkr2 ? (Math.round(state.gen2kw) + ' kW') : (state.mode==='sync' ? 'SYNCING' : 'OFF');
+    document.getElementById('gen2hz').textContent = state.bkr2 ? (state.busHz.toFixed(1) + ' Hz') : (state.mode==='sync' ? 'MATCHING' : 'STANDBY');
+    document.getElementById('busVal').textContent = Math.round(state.busV) + 'V / ' + state.busHz.toFixed(1) + 'Hz';
+
+    document.getElementById('gen2Circle').setAttribute('stroke', state.bkr2 ? '#35D0A0' : (state.mode==='sync' ? '#F5A623' : '#556478'));
+    document.getElementById('bkr1').setAttribute('fill', state.bkr1 ? '#35D0A0' : '#EF4B4B');
+    document.getElementById('bkr2').setAttribute('fill', state.bkr2 ? '#35D0A0' : '#556478');
+    document.getElementById('busLine').setAttribute('stroke', state.busV > 50 ? '#4F8EF7' : '#EF4B4B');
+
+    document.getElementById('emgBox').setAttribute('stroke', state.emg==='RUNNING' ? '#F5A623' : '#213249');
+    document.getElementById('emgState').textContent = state.emg;
+
+    // Synchroscope needle: 120deg = 12 o'clock (in phase). Map phase error to rotation.
+    var needle = document.getElementById('syncNeedle');
+    needle.setAttribute('transform', 'rotate(' + state.phase + ' 75 75)');
+
+    document.getElementById('govBias').style.width = Math.abs(state.gov)*0.5 + '%';
+    document.getElementById('govBias').style.left = (state.gov>=0 ? 50 : 50+state.gov*0.5) + '%';
+    document.getElementById('avrBias').style.width = Math.abs(state.avr)*0.5 + '%';
+    document.getElementById('avrBias').style.left = (state.avr>=0 ? 50 : 50+state.avr*0.5) + '%';
+
+    var capTotal = state.cap * (state.bkr2?2:1);
+    document.getElementById('barGen1').style.height = Math.min(100, state.gen1kw/state.cap*100) + '%';
+    document.getElementById('barGen1val').textContent = Math.round(state.gen1kw);
+    document.getElementById('barGen2').style.height = Math.min(100, state.gen2kw/state.cap*100) + '%';
+    document.getElementById('barGen2val').textContent = Math.round(state.gen2kw);
+    document.getElementById('barTotal').style.height = Math.min(100, total/capTotal*100) + '%';
+    document.getElementById('barTotalval').textContent = Math.round(total);
+    document.getElementById('barCap').style.height = '100%';
+    document.getElementById('barCapval').textContent = Math.round(capTotal);
+
+    var dotIds = ['dotS1','dotS2','dotS3'];
+    for(var i=0;i<3;i++){
+      document.getElementById(dotIds[i]).className = 'dot ' + (state.stage[i] ? 'shed' : 'ok');
+    }
+
+    var pill = document.getElementById('statusPill');
+    var labels = {
+      normal: ['ok','NORMAL - GEN1 DUTY'], shed: ['warn','LOAD SHED ACTIVE'],
+      sync: ['busy','SYNCHRONISING'], parallel: ['ok','GENS PARALLEL'],
+      blackout: ['trip','BLACKOUT RECOVERY'], syncfail: ['trip','SYNC FAILED']
+    };
+    var l = labels[state.mode] || labels.normal;
+    pill.className = 'pill ' + l[0];
+    pill.textContent = l[1];
+  }
+  render();
+
+  // ---- Scripted demo: normal -> load rises -> auto-sync Gen2 -> parallel -> blackout -> recovery ----
+  var script = [
+    { t: 2000,  fn: function(){ state.gen1kw = 1750; pushLog('Gen1 load rising - approaching single-set capacity', 'warn'); } },
+    { t: 5000,  fn: function(){ state.mode='sync'; pushLog('Load-dependent auto-start: Gen2 starting', 'info'); } },
+    { t: 8000,  fn: function(){ state.phase = 200; pushLog('Gen2 running - warm-up in progress', 'info'); } },
+    { t: 11000, fn: function(){ state.gov=35; state.phase=160; pushLog('Speed matching - governor bias applied', 'info'); } },
+    { t: 13500, fn: function(){ state.avr=18; state.phase=140; pushLog('Voltage matching - AVR bias applied', 'info'); } },
+    { t: 16000, fn: function(){ state.phase=122; pushLog('Phase closing in - within window', 'info'); } },
+    { t: 17500, fn: function(){ state.bkr2=true; state.mode='parallel'; state.gov=0; state.avr=0; state.phase=120;
+                  state.gen1kw=1050; state.gen2kw=950; pushLog('Gen2 breaker CLOSED - generators running in parallel', 'ok'); } },
+    { t: 22000, fn: function(){ pushLog('Load shared - system stable', 'ok'); } },
+    { t: 27000, fn: function(){ state.mode='blackout'; state.bkr1=false; state.bkr2=false; state.gen1kw=0; state.gen2kw=0;
+                  state.busV=0; state.busHz=0; state.stage=[true,true,true];
+                  pushLog('BLACKOUT: both generators lost - all non-essential load force-shed', 'trip'); } },
+    { t: 30000, fn: function(){ state.emg='RUNNING'; pushLog('Emergency generator running - emergency bus energised', 'ok'); } },
+    { t: 34000, fn: function(){ pushLog('Gen1 black-start command issued', 'info'); } },
+    { t: 38000, fn: function(){ state.bkr1=true; state.busV=450; state.busHz=60.0; state.gen1kw=50;
+                  pushLog('Gen1 dead-bus closed - main bus re-energised', 'ok'); } },
+    { t: 41000, fn: function(){ state.stage=[true,true,false]; state.gen1kw=250; pushLog('Restore stage 3: non-essential deck machinery back online', 'ok'); } },
+    { t: 44000, fn: function(){ state.stage=[true,false,false]; state.gen1kw=520; pushLog('Restore stage 2: accommodation HVAC back online', 'ok'); } },
+    { t: 47000, fn: function(){ state.stage=[false,false,false]; state.gen1kw=720; state.mode='normal'; state.emg='STANDBY';
+                  pushLog('Restore stage 1 complete - blackout recovery finished, normal operation resumed', 'ok'); } }
+  ];
+  var cycleLength = 52000;
+  function runScript(){
+    for(var i=0;i<script.length;i++){
+      (function(step){ setTimeout(function(){ step.fn(); render(); }, step.t); })(script[i]);
+    }
+  }
+  runScript();
+  setInterval(runScript, cycleLength);
+
+  setInterval(function(){
+    if(state.mode==='normal' || state.mode==='parallel'){
+      state.gen1kw = Math.max(400, Math.min(1950, state.gen1kw + (Math.random()-0.5)*20));
+      if(state.bkr2){ state.gen2kw = Math.max(300, Math.min(1900, state.gen2kw + (Math.random()-0.5)*20)); }
+    }
+    render();
+  }, 2000);
+</script>
+</body>
+</html>
