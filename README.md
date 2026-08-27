@@ -5,7 +5,7 @@
 
 ### 🖥️ Interactive HMI
 
-🚢 **[Launch the Interactive PMS HMI](https://hangmanlucky.github.io/marine-egcs-scrubber-control/)**
+🚢 **[Launch the Interactive PMS HMI](https://hangmanlucky.github.io/marine-pms-loadshare/)**
 
 
 ![Platform](https://img.shields.io/badge/PLC-Siemens%20S7--1500%20%2F%20CODESYS-blue)
