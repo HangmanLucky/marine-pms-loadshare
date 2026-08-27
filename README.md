@@ -7,7 +7,7 @@
 ![Status](https://img.shields.io/badge/Status-Simulation%20%2F%20Portfolio%20Build-orange)
 
 **Author:** Sipho Lucky Sibanda
-**Series:** Marine Automation Portfolio — Project 03 (see also [Project 01 — EGCS](../marine-egcs-scrubber-control) and [Project 02 — FGSS ESD](../marine-lng-fgss-esd))
+**Series:** Marine Automation Portfolio — Project 03 (see also [Project 01 — EGCS](../marine-egcs-scrubber-control) and [Project 02 — FGSS ESD](https://hangmanlucky.github.io/marine-lng-fgss-esd/)
 
 ---
 
