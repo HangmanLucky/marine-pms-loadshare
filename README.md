@@ -36,18 +36,18 @@ than a human operator ever could, in three distinct ways covered by this project
 
 ## 🖥️ HMI — Switchboard Console
 
-The `hmi/index.html` mockup is built around a single-line diagram (the standard way
+The `index.html` mockup is built around a single-line diagram (the standard way
 electrical engineers visualise a switchboard) plus a live **synchroscope** — the
 classic rotating-needle dial real synchronising panels use to show phase alignment.
 It runs a full scripted demo on a loop: rising load &rarr; auto-sync &rarr; parallel
 running &rarr; full blackout &rarr; emergency generator &rarr; black-start &rarr;
 staged restoration.
 
-![HMI Dashboard](images/hmi-dashboard.png)
+![HMI Dashboard](hmi-dashboard.png)
 
 ## 🗺️ System Architecture
 
-![Architecture Diagram](images/architecture_diagram.svg)
+![Architecture Diagram](architecture_diagram.svg)
 
 Two generators feed a common busbar through breakers; a synchronising relay
 supervises any live paralleling attempt. Essential loads (steering gear, navigation,
@@ -84,9 +84,9 @@ marine-pms-loadshare/
 
 ## 📄 Documentation
 
-- [I/O List](docs/IO_List.md)
-- [Functional Test Procedures](docs/Testing_Procedures.md)
-- [Full Technical Manual (PDF)](ebook/PMS_Technical_Manual.pdf) — 30-page project ebook covering SOLAS Ch.II-1 context, architecture, hardware, the three-linked-problems control philosophy, full annotated code, HMI design with a live synchroscope, alarm philosophy, testing/commissioning, and a HAZOP-style hazard register
+- [I/O List](IO_List.md)
+- [Functional Test Procedures](Testing_Procedures.md)
+- [Full Technical Manual (PDF)](PMS_Technical_Manual.pdf) — 30-page project ebook covering SOLAS Ch.II-1 context, architecture, hardware, the three-linked-problems control philosophy, full annotated code, HMI design with a live synchroscope, alarm philosophy, testing/commissioning, and a HAZOP-style hazard register
 
 ## ⚠️ Disclaimer
 
